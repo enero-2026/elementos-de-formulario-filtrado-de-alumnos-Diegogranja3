@@ -1,4 +1,4 @@
-import { FlatList } from "react-native";
+import { FlatList, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import {List, TouchableRipple, TextInput, Text} from 'react-native-paper';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -7,6 +7,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 export default function Alumnos(){
   
   const [alumnos, setAlumnos] = useState([]);
+  const [buscaAlumno, setBuscaAlumno] = useState('');
+  const [ordenAlfabetico, setOrdenAlfabetico] = useState('asc');
   
   
   
@@ -309,6 +311,15 @@ if(alumnos.length ===0 ){
   )
 }
 
+const alumnosFiltrados = alumnos.filter((alumno) =>
+  alumno.nombre.toLowerCase().includes(buscaAlumno.toLowerCase())
+);
+
+const alumnosMostrados = [...alumnosFiltrados].sort((a, b) => {
+  const comparacion = a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+  return ordenAlfabetico === 'asc' ? comparacion : comparacion * -1;
+});
+
 return(
   
   //Op 1
@@ -316,11 +327,35 @@ return(
   
   // <TextInput placeholder="hola..."></TextInput> de React native y <TextInput> de Paper no se pueden usar juntos
   <>
+  <TextInput
+    mode="outlined"
+    label="Buscar alumno"
+    placeholder="ejemplo: David Garza"
+    value={buscaAlumno}
+    onChangeText={setBuscaAlumno}
+    style={{ margin: 10 }}
+  />
+
+  <Pressable
+    onPress={() => setOrdenAlfabetico((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+    style={{
+      marginHorizontal: 10,
+      marginBottom: 10,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      backgroundColor: '#0b57d0'
+    }}
+  >
+    <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '700' }}>
+      {ordenAlfabetico === 'asc' ? 'Orden actual: A-Z (tocar para Z-A)' : 'Orden actual: Z-A (tocar para A-Z)'}
+    </Text>
+  </Pressable>
   
   
   
   <FlatList
-  data={alumnosFiltrados}
+  data={alumnosMostrados}
   keyExtractor={(item) => item.matricula}
   renderItem={({ item }) => (
     <>
